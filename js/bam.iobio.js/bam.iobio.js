@@ -28,11 +28,12 @@ var Bam = Class.extend({
 	  //this.iobio.bamReadDepther = "ws://bamReadDepther.iobio.io";
 	  //this.iobio.bamMerger = "ws://bammerger.iobio.io";      
 	  //this.iobio.bamstatsAlive = "ws://bamstatsalive.iobio.io";
-	  this.iobio.bamtools = "ws://localhost:8000";
-	  this.iobio.samtools = "ws://localhost:8001";
-	  this.iobio.bamReadDepther = "ws://localhost:8002";
-	  this.iobio.bamMerger = "ws://localhost:8003";      
-	  this.iobio.bamstatsAlive = "ws://localhost:8004";
+	  var currentHost = window.location.hostname;
+	  this.iobio.bamtools = "ws://" + currentHost + ":8000";
+	  this.iobio.samtools = "ws://" + currentHost + ":8001";
+	  this.iobio.bamReadDepther = "ws://" + currentHost + ":8002";
+	  this.iobio.bamMerger = "ws://" + currentHost + ":8003";      
+	  this.iobio.bamstatsAlive = "ws://" + currentHost + ":8004";
       return this;
    },
    
