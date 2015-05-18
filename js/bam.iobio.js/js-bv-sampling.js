@@ -155,6 +155,7 @@ function mapSegCoverage (indexReader, refid, fn, keepNils) {
 // is sorted ascendingly by name by numerical start
 //
 function samplingRegions (refs, options) {
+    console.log("samplingRegions, refs & options: ", refs, options);
     var options = options ? options : {};
     var bsize = options.binSize || 40000;
     var bcnt  = options.binNumber || 20;

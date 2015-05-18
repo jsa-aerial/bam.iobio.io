@@ -18,7 +18,7 @@ function Bam (bamUri, options, cb) {
             if (cb) cb.call(me);
         });
     } else if ( this.bamUri.slice(0,4) == "http" ) {
-        this.sourceType = "url";
+        this.sourceType = "url"
     }
 
     // set iobio servers
@@ -66,7 +66,7 @@ $.extend(Bam.prototype,{
                            stream.write(EOFblk.buffer);
                            stream.end();
                            stream.destroy();
-                           client.close();
+                           //client.close();
                            console.log("FINISHED")}})
            });
    },
@@ -454,10 +454,11 @@ $.extend(Bam.prototype,{
                return {start:r.start, end:r.end, chr:r.name};
            }));
        var urlOpts =
-           (me.sourceType == "url") ? '-r \'' + regStr + '\' ' : "";
+           (me.sourceType == "url") ?
+               '?cmd=-u 500 -r \'' + regStr + '\' ' :
+               "?protocol=websocket&cmd=-u 500 ";
 
-       return encodeURI(me.iobio.bamstatsAlive +
-                        '?cmd=-u 500 ' + urlOpts +
+       return encodeURI(me.iobio.bamstatsAlive + urlOpts +
                         encodeURIComponent(me._getBamRegionsUrl(regions)));
    },
 
@@ -496,7 +497,7 @@ $.extend(Bam.prototype,{
              });
       }
 
-      if ( options.sequenceNames != undefined && options.sequenceNames.length == 1 && options.end != undefined) {
+      if ( options.sequenceNames != undefined && options.sequenceNames.length == 1 && options.end != undefined && me.sourceType != "file") {
          goSampling([{name:options.sequenceNames[0], end:options.end}]);
       } else if (options.sequenceNames != undefined && options.sequenceNames.length == 1){
          this.getHeader(function(header){
