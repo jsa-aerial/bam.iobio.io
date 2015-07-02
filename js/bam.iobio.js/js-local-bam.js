@@ -682,7 +682,7 @@ readBinaryBAM.prototype.getAlnUbas =
         var baiR = this.baiR
 
         // vector.pop, pops from the _end_
-        var cnks = baiR.getChunks(ref,beg,end); //.reverse();
+        var cnks = baiR.getChunks(ref,beg,end);
 
         var aln_ubas = [];
         var fn1 = function (ckbeg, ckend) {
@@ -700,7 +700,7 @@ readBinaryBAM.prototype.getAlnUbas =
                     ubaInfo.uba = bap.curBuf;
                     aln_ubas.push(ubaInfo);
                     if (cnks.length > 0) {
-                        var rng = cnks.pop();
+                        var rng = cnks.shift();
                         fn1(rng[0], rng[1]);
                     } else {
                         cbfn.call(bamRthis, aln_ubas);
@@ -708,8 +708,8 @@ readBinaryBAM.prototype.getAlnUbas =
                 });
         };
 
-        if (cnks.length > 0) {
-            var rng = cnks.pop();
+        if (cnks.length > 0) { console.log("CNKS: ", cnks);
+            var rng = cnks.shift(); console.log("RNG: ", rng);
             fn1(rng[0], rng[1]);
         } else {
             cbfn.call(bamRthis, []);
@@ -818,7 +818,7 @@ readBinaryBAM.prototype.region2BAM =
 readBinaryBAM.prototype.regions2BAM =
     function (refsNregions, cbfn) {
         var bamRthis = this;
-        var refregmaps = refsNregions.reverse();
+        var refregmaps = refsNregions;
 
         var reduce = function (regmap) {
             bamRthis.region2BAM(
@@ -826,14 +826,14 @@ readBinaryBAM.prototype.regions2BAM =
                 function (bgzfBlks){
                     if (refregmaps.length > 0) {
                         cbfn.call(bamRthis, bgzfBlks);
-                        reduce(refregmaps.pop());
+                        reduce(refregmaps.shift());
                     } else {
                         cbfn.call(bamRthis, undefined);
                     };
                 });
         };
         if (refregmaps.length > 0) {
-            reduce(refregmaps.pop());
+            reduce(refregmaps.shift());
         } else {
             cbfn.call(bamRthis, undefined);
         };
@@ -891,7 +891,7 @@ readBinaryBAM.prototype.regions2BAM =
 readBinaryBAM.prototype.throttledRegions2BAM =
     function (refsNregions, cbfn) {
         var bamRthis = this;
-        var refregmaps = refsNregions.reverse();
+        var refregmaps = refsNregions;
 
         var contfn = function (regmap) {
             bamRthis.region2BAM(
@@ -899,19 +899,18 @@ readBinaryBAM.prototype.throttledRegions2BAM =
                 function (bgzfBlks){
                     if (refregmaps.length > 0) {
                         cbfn.call(bamRthis, bgzfBlks,
-                                  contfn, refregmaps.pop());
+                                  contfn, refregmaps.shift());
                     } else {
                         cbfn.call(bamRthis, undefined);
                     };
                 });
         };
         if (refregmaps.length > 0) {
-            contfn(refregmaps.pop());
+            contfn(refregmaps.shift());
         } else {
             cbfn.call(bamRthis, undefined);
         };
     };
-
 
 
 // Synonym for bai getChunks.  Directly callable on a bamReader.
@@ -1109,12 +1108,12 @@ function coalesce65KBCnks (alnubas) {
                 Cnks.push([uba]);
             };
             return Cnks;
-        }, []);
+        }, []); tmpubas = grp65kbUbas;
     var coalescedUbas = grp65kbUbas.reduce(
         function (Ubas, grp) {
             Ubas.push(appendBuffers(grp, true));
             return Ubas;
-        });
+        }, []);
     return coalescedUbas;
 }
 
