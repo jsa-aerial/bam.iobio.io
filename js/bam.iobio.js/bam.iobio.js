@@ -477,23 +477,25 @@ $.extend(Bam.prototype,{
          var buffer = "";
          doService(
              me.iobio.bamstatsAlive, url,
-             function(data) {
-               if (data == undefined) {
-                 if (options.onEnd != undefined) options.onEnd();
-                 return;
-               } else {
-                 var success = true;
-                 try {
-                   var obj = JSON.parse(buffer + data)
-                 } catch(e) {
-                   success = false;
-                   buffer += data;
+             function(datas) {
+               datas.split(';').forEach(function(data) {
+                 if (data == undefined) {
+                   if (options.onEnd != undefined) options.onEnd();
+                   return;
+                 } else {
+                   var success = true;
+                   try {
+                     var obj = JSON.parse(buffer + data)
+                   } catch(e) {
+                     success = false;
+                     buffer += data;
+                   };
+                   if(success) {
+                     buffer = "";
+                     callback(obj);
+                   };
                  };
-                 if(success) {
-                   buffer = "";
-                   callback(obj);
-                 };
-               };
+               })
              });
       }
 
