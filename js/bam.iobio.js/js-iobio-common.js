@@ -55,6 +55,7 @@ function backstream (service, uid, cbfn) {
         {event: 'setID',
          connectionID: uid});
       stream.end();
+      stream.destroy();
     });
   bsclient.on(
     'stream',
@@ -64,6 +65,7 @@ function backstream (service, uid, cbfn) {
 }
 
 function doService (service, url, cbfn) {
+  console.log("doService: ", service);
   var srvclient = BinaryClient(service);
   var callThis = this;
 

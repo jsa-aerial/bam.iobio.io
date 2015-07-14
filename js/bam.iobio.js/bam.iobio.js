@@ -11,12 +11,15 @@ function Bam (bamUri, options, cb) {
     if (typeof(this.bamUri) == "object") {
         var me = this;
         this.sourceType = "file";
-        this.bamR = new readBinaryBAM(options.bai, bamUri);
-        this.bamR.bamFront(function(head, refs){
-            me.bam = me.bamR;
-            me.header = {sq: new2oldRefs(refs), head: head};
-            if (cb) cb.call(me);
-        });
+        this.bamR = new readBinaryBAM(
+          options.bai, bamUri,
+          function(_) {
+            me.bamR.bamFront(function(head, refs){
+              me.bam = me.bamR;
+              me.header = {sq: new2oldRefs(refs), head: head};
+              if (cb) cb.call(me);
+            });
+          });
     } else if ( this.bamUri.slice(0,4) == "http" ) {
         this.sourceType = "url"
     }
@@ -27,7 +30,7 @@ function Bam (bamUri, options, cb) {
     this.iobio.samtools = "ws://samtools.iobio.io";
     this.iobio.bamReadDepther = "ws://bamReadDepther.iobio.io";
     this.iobio.bamMerger = "ws://bammerger.iobio.io";
-    this.iobio.bamstatsAlive = "ws://bamstatsalive.iobio.io"
+    this.iobio.bamstatsAlive = "ws://bamstatsalive.iobio.io";
 //      this.iobio.bamtools = "ws://localhost:8061";
 //      this.iobio.samtools = "ws://localhost:8060";
 //      this.iobio.bamReadDepther = "ws://localhost:8021";
@@ -308,7 +311,9 @@ $.extend(Bam.prototype,{
           refs.forEach(function(r){
               me.readDepth[r] = mapSegCoverage(
                   bamR.baiR, bamR.refName2Index(r),
-                  function(x){return (x.depth > 0) ? x : undefined;});
+                  function(x){
+                    return (x.depth > 0) ? x : undefined;
+                  }).sort(function(l,r){return l.pos - r.pos});
               callback(r, me.readDepth[r]);
           });
       }
@@ -477,23 +482,25 @@ $.extend(Bam.prototype,{
          var buffer = "";
          doService(
              me.iobio.bamstatsAlive, url,
-             function(data) {
-               if (data == undefined) {
-                 if (options.onEnd != undefined) options.onEnd();
-                 return;
-               } else {
-                 var success = true;
-                 try {
-                   var obj = JSON.parse(buffer + data)
-                 } catch(e) {
-                   success = false;
-                   buffer += data;
+             function(datas) {
+               datas.split(';').forEach(function(data) {
+                 if (data == undefined) {
+                   if (options.onEnd != undefined) options.onEnd();
+                   return;
+                 } else {
+                   var success = true;
+                   try {
+                     var obj = JSON.parse(buffer + data)
+                   } catch(e) {
+                     success = false;
+                     buffer += data;
+                   };
+                   if(success) {
+                     buffer = "";
+                     callback(obj);
+                   };
                  };
-                 if(success) {
-                   buffer = "";
-                   callback(obj);
-                 };
-               };
+               });
              });
       }
 
